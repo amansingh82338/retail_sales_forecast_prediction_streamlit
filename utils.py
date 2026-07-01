@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression
 # --------------------------------------------------------------------------
 # CONFIGURATION -- update these paths if your folder structure changes
 # --------------------------------------------------------------------------
-DATA_PATH = "data/merged/merged_sales.csv"
+DATA_PATH = "data/merged/merged_sales.zip"
 MODELS_DIR = "train_model.py"
 REPORTS_DIR = "reports"
 
