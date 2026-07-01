@@ -16,9 +16,9 @@ from sklearn.linear_model import LinearRegression
 # --------------------------------------------------------------------------
 # CONFIGURATION -- update these paths if your folder structure changes
 # --------------------------------------------------------------------------
-DATA_PATH = r"C:\Users\amans\Downloads\Codtech_Projects\predictive_sales_forecast\data\merged\merged_sales.csv"
-MODELS_DIR = r"C:\Users\amans\Downloads\Codtech_Projects\predictive_sales_forecast\models"
-REPORTS_DIR = r"C:\Users\amans\Downloads\Codtech_Projects\predictive_sales_forecast\reports"
+DATA_PATH = "data/merged/merged_sales.csv"
+MODELS_DIR = "models"
+REPORTS_DIR = "reports"
 
 TARGET_COL = "Weekly_Sales"
 
