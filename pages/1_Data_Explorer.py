@@ -7,7 +7,7 @@ Lets users browse, filter, and download the merged sales dataset.
 
 import streamlit as st
 
-from utils import DATA_PATH, check_data_path, load_data
+from utils import DATA_PATH, check_data_path, get_dataset, using_uploaded_data
 
 st.set_page_config(page_title="Data Explorer", page_icon="🔍", layout="wide")
 
@@ -15,7 +15,10 @@ st.title("🔍 Data Explorer")
 st.caption("Browse and filter the merged sales dataset.")
 
 check_data_path(DATA_PATH)
-df = load_data(DATA_PATH)
+df = get_dataset()
+
+if using_uploaded_data():
+    st.info("Using your uploaded dataset. Upload or reset it from the home page.")
 
 # --------------------------------------------------------------------------
 # FILTERS
