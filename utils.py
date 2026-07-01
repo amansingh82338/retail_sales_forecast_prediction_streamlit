@@ -41,6 +41,32 @@ def load_data(path: str = DATA_PATH) -> pd.DataFrame:
     return df
 
 
+@st.cache_data
+def read_uploaded_csv(file_bytes: bytes) -> pd.DataFrame:
+    """Parses an uploaded CSV file (as bytes, for cache-hashing) into a DataFrame."""
+    import io
+    df = pd.read_csv(io.BytesIO(file_bytes))
+    if "Date" in df.columns:
+        df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    return df
+
+
+def get_dataset() -> pd.DataFrame:
+    """Returns the active dataset for the app.
+
+    If the user has uploaded a CSV on the home page (stored in
+    st.session_state['uploaded_df']), that is used everywhere. Otherwise
+    falls back to the default DATA_PATH on disk.
+    """
+    if "uploaded_df" in st.session_state and st.session_state["uploaded_df"] is not None:
+        return st.session_state["uploaded_df"]
+    return load_data(DATA_PATH)
+
+
+def using_uploaded_data() -> bool:
+    return st.session_state.get("uploaded_df") is not None
+
+
 @st.cache_resource
 def load_model(path: str):
     if os.path.exists(path):
@@ -114,8 +140,14 @@ def predict_with_model(model, scaler, X: pd.DataFrame) -> np.ndarray:
 
 
 def check_data_path(path: str = DATA_PATH) -> bool:
-    """Shows a Streamlit error and stops execution if the dataset is missing."""
+    """Shows a Streamlit error and stops execution if no dataset is available
+    -- either uploaded via the UI or found on disk at DATA_PATH."""
+    if using_uploaded_data():
+        return True
     if not os.path.exists(path):
-        st.error(f"Dataset not found at:\n{path}\n\nPlease check DATA_PATH in utils.py.")
+        st.error(
+            f"Dataset not found at:\n{path}\n\n"
+            "Please check DATA_PATH in utils.py, or upload a CSV on the home page."
+        )
         st.stop()
     return True
