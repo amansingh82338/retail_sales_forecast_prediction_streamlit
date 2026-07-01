@@ -13,10 +13,11 @@ from utils import (
     DATA_PATH,
     TARGET_COL,
     check_data_path,
+    get_dataset,
     load_all_models,
-    load_data,
     predict_with_model,
     preprocess_for_training_columns,
+    using_uploaded_data,
 )
 
 st.set_page_config(page_title="Predict", page_icon="🔮", layout="wide")
@@ -25,8 +26,11 @@ st.title("🔮 Generate a Sales Prediction")
 st.caption("Enter store/week details below to predict Weekly Sales.")
 
 check_data_path(DATA_PATH)
-df = load_data(DATA_PATH)
+df = get_dataset()
 models, best_model, scaler = load_all_models()
+
+if using_uploaded_data():
+    st.info("Using your uploaded dataset for default values below. Upload or reset it from the home page.")
 
 if best_model is None:
     st.warning(
