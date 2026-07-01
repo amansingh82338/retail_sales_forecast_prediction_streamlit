@@ -26,8 +26,10 @@ from utils import (
     MODELS_DIR,
     REPORTS_DIR,
     TARGET_COL,
+    get_dataset,
     load_all_models,
-    load_data,
+    read_uploaded_csv,
+    using_uploaded_data,
 )
 
 st.set_page_config(
@@ -54,11 +56,51 @@ st.markdown(
 st.divider()
 
 # --------------------------------------------------------------------------
+# UPLOAD YOUR OWN DATASET
+# --------------------------------------------------------------------------
+st.subheader("📂 Upload Your Own Dataset")
+st.caption(
+    "Upload a CSV to use in place of the default dataset. Once uploaded, "
+    "every page (Data Explorer, Sales Trends, Model Comparison, Predict) "
+    "will use your file automatically."
+)
+
+upload_col1, upload_col2 = st.columns([3, 1])
+
+with upload_col1:
+    uploaded_file = st.file_uploader(
+        "Choose a CSV file", type=["csv"], label_visibility="collapsed"
+    )
+
+with upload_col2:
+    if using_uploaded_data():
+        if st.button("Reset to default dataset", use_container_width=True):
+            st.session_state["uploaded_df"] = None
+            st.rerun()
+
+if uploaded_file is not None:
+    try:
+        file_bytes = uploaded_file.getvalue()
+        new_df = read_uploaded_csv(file_bytes)
+        st.session_state["uploaded_df"] = new_df
+        st.success(
+            f"✅ Loaded **{uploaded_file.name}** — {len(new_df):,} rows, "
+            f"{len(new_df.columns)} columns. This dataset is now active across all pages."
+        )
+    except Exception as e:
+        st.error(f"Couldn't read that file: {e}")
+
+if using_uploaded_data():
+    st.info("Currently using your **uploaded dataset**, not the default file on disk.")
+
+st.divider()
+
+# --------------------------------------------------------------------------
 # STATUS CHECKS
 # --------------------------------------------------------------------------
 st.subheader("Project Status")
 
-data_ok = os.path.exists(DATA_PATH)
+data_ok = using_uploaded_data() or os.path.exists(DATA_PATH)
 models_ok = os.path.exists(os.path.join(MODELS_DIR, "best_model.pkl"))
 reports_ok = os.path.exists(os.path.join(REPORTS_DIR, "model_comparison.csv"))
 
@@ -70,7 +112,8 @@ status_col3.metric("Reports", "✅ Found" if reports_ok else "❌ Missing")
 if not data_ok:
     st.error(
         f"Dataset not found at:\n\n`{DATA_PATH}`\n\n"
-        "Update `DATA_PATH` in `utils.py` or make sure the merged dataset exists."
+        "Update `DATA_PATH` in `utils.py`, make sure the merged dataset exists, "
+        "or upload a CSV above."
     )
 
 if not models_ok or not reports_ok:
@@ -85,7 +128,7 @@ st.divider()
 # QUICK SNAPSHOT (only if data is available)
 # --------------------------------------------------------------------------
 if data_ok:
-    df = load_data(DATA_PATH)
+    df = get_dataset()
     _, best_model, _ = load_all_models()
 
     st.subheader("Dataset Snapshot")
@@ -139,7 +182,6 @@ st.caption(
     "Built with Python, Pandas, Scikit-learn, XGBoost, and Streamlit. "
     "See README.md for the full project workflow."
 )
-
 st.markdown(
     "<div style='text-align: center; padding-top: 10px;'>"
     "<b>Made by Aman Singh Chauhan</b><br>"
