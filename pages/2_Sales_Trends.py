@@ -9,7 +9,7 @@ import numpy as np
 import plotly.express as px
 import streamlit as st
 
-from utils import DATA_PATH, TARGET_COL, check_data_path, load_data
+from utils import DATA_PATH, TARGET_COL, check_data_path, get_dataset, using_uploaded_data
 
 st.set_page_config(page_title="Sales Trends", page_icon="📊", layout="wide")
 
@@ -17,7 +17,10 @@ st.title("📊 Sales Trends & Seasonality")
 st.caption("Explore how sales evolve over time and what drives them.")
 
 check_data_path(DATA_PATH)
-df = load_data(DATA_PATH)
+df = get_dataset()
+
+if using_uploaded_data():
+    st.info("Using your uploaded dataset. Upload or reset it from the home page.")
 
 # --------------------------------------------------------------------------
 # FILTERS
